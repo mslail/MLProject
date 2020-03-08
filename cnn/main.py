@@ -15,45 +15,48 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import csv
 from cnn import Net
-from data_obj import Data
 
 sns.set_style("darkgrid")
 
+# verbosity (0,1,2) - for different levels of debugging
+vb = 0
+
 if __name__ == '__main__':
     
-    # Hyperparameters from json file
-    jsonPath = sys.argv[1]
+    # get image file name from cmd line and load in pickled file
+    imFile = sys.argv[1]
+    imData = np.load(imFile, allow_pickle=True)   
+    if vb == 1: print("Name of file: ", imFile, " Size of sample file: ", np.shape(imData))
+   
+    # hyperparameters (json file) import
+    jsonPath = "parameters.json"
     with open(jsonPath) as json_file:
         param = json.load(json_file)
-        
-    # Getting excel data
-    csvFile = "even_mnist.csv"
-    data = np.array(list(csv.reader(open(csvFile, "r"), delimiter=" "))).astype("float")
     
-    # reshaping images and isolating labels
+    # reshaping data and identifying labels
+    imLen = int(np.sqrt(len(imData[0]) - 1))     # pixel length of square image
     images = []
-    labels = []
-    
-    for img in data:
-        images.append(np.reshape(img[:-1], (1,14,14)))
-        labels.append(img[-1])
-    
-    # separating into training and test sets
-    trainImg = np.array(images[:26492], dtype=np.float32)
-    testImg = np.array(images[26492:], dtype=np.float32)
-    trainLbl = np.array(labels[:26492]).transpose()
-    testLbl = np.array(labels[26492:]).transpose()
+    energies = []
 
-    # creating data structure
-    data = Data(trainImg, testImg, trainLbl, testLbl)
+    # storing energies and images in arrays
+    for img in imData:
+       images.append(np.reshape(img[:-1], (1,imLen,imLen)))
+       energies.append(img[-1])
+    
+    # hyperparameters
+    lr_rate = int(param["learning_rate"])
+    rKern = int(param["reducing_conv_kernel"])
+    nKern = int(param["nonreducing_conv_kernel"])
+    rStride = int(param["reducing_stride"])
+    nStride = int(param["nonreducing_stride"])
+    rOut = int(param["reducing_out"])
+    nOut = int(param["nonreducing_out"])
 
-    # constructing a model - assuming square image - passing in kernel size for convolution, and maxpool and image size
-    model = Net(param["conv_kernel"], param["pool_kernel"], param["im_size"])
+    # constructing a model
+    model = Net(red_kernel=rKern, nonred_kernel=nKern, red_stride=rStride, nonred_stride=nStride, red_out=rOut, nonred_out=nOut)
     
     # declare optimizer and gradient and loss function
-    lr_rate = param["learning_rate"]
-
-    optimizer = optim.SGD(model.parameters(), lr=lr_rate)
+    optimizer = optim.Adadelta(model.parameters(), lr=lr_rate)
     loss = torch.nn.CrossEntropyLoss(reduction= 'mean')
     
     # storing the training and test loss values
@@ -68,13 +71,9 @@ if __name__ == '__main__':
     # Training loop
     for epoch in range(1, num_epochs + 1):
 
-        train_val= model.backprop(data, loss, epoch, optimizer)     # training loss value
+        train_val= model.backprop(images, energies, loss, optimizer)     # training loss value
         obj_vals.append(train_val)
-        
-        test_val= model.test(data, loss, epoch)                     # test data loss value
-        cross_vals.append(test_val)
-        
+
         if not ((epoch + 1) % disp_epochs):
             print('Epoch [{}/{}]'.format(epoch+1, num_epochs)+\
-              '\tTraining Loss: {:.4f}'.format(train_val)+\
-              '\tTest Loss: {:.4f}'.format(test_val))
+              '\tTraining Loss: {:.4f}'.format(train_val))
