@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as func
-
+import numpy as np
 
 class Net(nn.Module):
     '''
@@ -29,9 +29,7 @@ class Net(nn.Module):
         self.conv_non = nn.Conv2d(red_out, nonred_out, kernel_size= nonred_kernel, stride= nonred_stride)
 
         # size variables based on number of layers
-        iSize= 128                                     # initial image size
-        numRedLayers= 4                                # number of reducing layers
-        fSize= int(iSize/(numRedLayers*red_stride))    # final size based on number of reducing layers and stride
+        fSize= 4    # final size based on number of reducing layers and stride
 
         # fully connected layers
         self.fc1=nn.Linear(red_out*fSize*fSize, 512)
@@ -40,22 +38,14 @@ class Net(nn.Module):
     # Feedforward function
     def forward(self, x):
         # 4 reducing convolution layers with 3 non-reducing layers
-        print(x.size())
         r1 = func.relu(self.conv1_red(x))
-        print(r1.size())
         n1 = func.relu(self.conv_non(r1))
-        print(n1.size())
         r2 = func.relu(self.conv2_red(n1))
-        print(r2.size())
         n2 = func.relu(self.conv_non(r2))
-        print(n2.size())
         r3 = func.relu(self.conv2_red(n2))
-        print(r3.size())
         n3 = func.relu(self.conv_non(r3))
-        print(n3.size())
         r4 = func.relu(self.conv2_red(n3))
-        print(r4.size())
-
+        
         # fully connected layers
         y = r4.view(-1, r4.size(1)*r4.size(2)*r4.size(3))  # flattening before applying linear functions
         y = func.relu(self.fc1(y))
@@ -71,22 +61,36 @@ class Net(nn.Module):
 
     # Backpropagation function
     def backprop(self, image, energy, loss, optimizer):
-        self.train
-        inputs= torch.Tensor(image)
-        targets= torch.Tensor(energy)
-        outputs= self(inputs)
-        obj_val= loss(self.forward(inputs), targets)
+        self.train()
+
+        # preparing input and target tensors with proper dtype
+        inputs= torch.tensor(image, dtype= torch.double)
+        targets= torch.tensor(energy, dtype= torch.double)
+
+        outputs= self(inputs.double())
+    
+        # calculating output from nn and reshaping
+        calculatedVal = self.forward(inputs)
+        size = calculatedVal.size()[0]
+        calculatedVal = calculatedVal.view(size)
+
+        # calculating loss
+        obj_val= loss(calculatedVal, targets)
+        
         optimizer.zero_grad()
         obj_val.backward()
         optimizer.step()
+   
         return obj_val.item()
 
     # Test function. Avoids calculation of gradients.
     def test(self, image, energy, loss):
         self.eval()
         with torch.no_grad():
-            inputs= torch.Tensor(image)
-            targets= torch.Tensor(energy)
-            outputs= self(inputs)
+            inputs= torch.tensor(image, dtype= torch.double)
+            targets= torch.tensor(energy, dtype= torch.double)
+
+            outputs= self(inputs.double())
+
             cross_val= loss(self.forward(inputs), targets)
         return cross_val.item()
