@@ -4,7 +4,9 @@ Project for Phys 490.
 
 # Running CNN
 
-python main.py sample.npy 
+```sh
+python main.py sample.npy
+```
 
 (where sample.npy is the numpy file containing the images and energy eigenvalues)
 
