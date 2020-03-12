@@ -17,7 +17,7 @@ class Generator():
             s = -1*np.ones(pow(self.size,2))
             for bnds in self.r_parm:
                 rands.append(np.random.uniform(bnds[0],bnds[1]))
-            print(rands)
+            #print(rands)
             if self.eng != None:
                 s = np.concatenate((np.reshape(self.pot(x,y,rands),pow(self.size,2)),np.array([self.eng(rands)])))
             else:
