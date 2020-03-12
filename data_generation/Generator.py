@@ -1,5 +1,5 @@
 import numpy as np
-np.set_printoptions(threshold=np.inf)
+#np.set_printoptions(threshold=np.inf)
 
 class Generator():
     def __init__(self, potential, pram_bound, energy=None, size=128):
