@@ -71,11 +71,14 @@ if __name__ == '__main__':
     disp_epochs = param["display_epochs"]
     num_epochs= int(epochs)
 
-    images1 = images[:130]
-    test = images[130:]
+    # Sectioning off training and testing images
+    cutoff = 140
 
-    energies1= energies[:130] 
-    testE = energies[130:]
+    images1 = images[:cutoff]
+    test = images[cutoff:]
+
+    energies1= energies[:cutoff] 
+    testE = energies[cutoff:]
 
     # Training loop
     for epoch in range(1, num_epochs + 1):
