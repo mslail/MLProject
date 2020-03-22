@@ -21,6 +21,8 @@ sns.set_style("darkgrid")
 # verbosity (0,1,2) - for different levels of debugging
 vb = 0
 
+dirName = "plot/"
+
 if __name__ == '__main__':
     
     # get image file name from cmd line and load in pickled file
@@ -69,11 +71,40 @@ if __name__ == '__main__':
     disp_epochs = param["display_epochs"]
     num_epochs= int(epochs)
 
+    images1 = images[:130]
+    test = images[130:]
+
+    energies1= energies[:130] 
+    testE = energies[130:]
+
     # Training loop
     for epoch in range(1, num_epochs + 1):
-        train_val= model.backprop(images, energies, loss, optimizer)        # training loss value
-        obj_vals.append(train_val)                                          # appending loss values for training dataset       
+        output, train_val= model.backprop(images1, energies1, loss, optimizer)        # training loss value
+        obj_vals.append(train_val)                                                  # appending loss values for training dataset     
+
+        test_val= model.test(test, testE, loss)  
+        cross_vals.append(test_val)
 
         if not ((epoch + 1) % disp_epochs):
-            print('Epoch [{}/{}]'.format(epoch+1, num_epochs)+\
-              '\tTraining Loss: {:.4f}'.format(train_val))
+            plt.plot(output.detach().numpy())
+            plt.savefig(dirName + "E" + str(epoch) + ".png")    
+            plt.close()
+
+            print('Epoch [{}/{}]'.format(epoch, num_epochs)+\
+              '\tTraining Loss: {:.4f}'.format(train_val) + \
+               '\t Test Loss: {:.4f}'.format(test_val))
+
+    plt.close()
+
+    plt.plot(energies)
+    plt.savefig(dirName + "InitialE.png") 
+    plt.close()
+
+    plt.plot(obj_vals)
+    plt.savefig(dirName + "Training error.png") 
+    plt.close()
+
+    plt.plot(cross_vals)
+    plt.savefig(dirName + "Test error.png") 
+    plt.close()
+ 

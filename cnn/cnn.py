@@ -4,15 +4,6 @@ import torch.nn.functional as func
 import numpy as np
 
 class Net(nn.Module):
-    '''
-    Neural network class.
-    Architecture:
-        Two convolution functions (convl1, convl2)
-        One nonlinear function relu
-        One maxpool function
-        Three fully-connected layers fc1, fc2 and fc3.
-
-    '''
 
     # INPUTS: 
     # [...]_kernel = kernel size for the convolution layers
@@ -62,13 +53,10 @@ class Net(nn.Module):
     # Backpropagation function
     def backprop(self, image, energy, loss, optimizer):
         self.train()
-
         # preparing input and target tensors with proper dtype
         inputs= torch.tensor(image, dtype= torch.double)
         targets= torch.tensor(energy, dtype= torch.double)
-
-        outputs= self(inputs.double())
-    
+   
         # calculating output from nn and reshaping
         calculatedVal = self.forward(inputs)
         size = calculatedVal.size()[0]
@@ -81,7 +69,7 @@ class Net(nn.Module):
         obj_val.backward()
         optimizer.step()
    
-        return obj_val.item()
+        return calculatedVal, obj_val.item()
 
     # Test function. Avoids calculation of gradients.
     def test(self, image, energy, loss):
@@ -90,7 +78,11 @@ class Net(nn.Module):
             inputs= torch.tensor(image, dtype= torch.double)
             targets= torch.tensor(energy, dtype= torch.double)
 
-            outputs= self(inputs.double())
+            # calculating output from nn and reshaping
+            calculatedVal = self.forward(inputs)
+            size = calculatedVal.size()[0]
+            calculatedVal = calculatedVal.view(size)
 
-            cross_val= loss(self.forward(inputs), targets)
+            cross_val= loss(calculatedVal, targets)
+
         return cross_val.item()
