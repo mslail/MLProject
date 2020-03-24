@@ -46,7 +46,7 @@ if __name__ == '__main__':
        energies.append(img[-1])
     
     # hyperparameters (start with r = for reducing layer, start with n = for nonreducing layer)
-    lr_rate = int(param["learning_rate"])
+    lr_rate = float(param["learning_rate"])
     rKern = int(param["reducing_conv_kernel"])
     nKern = int(param["nonreducing_conv_kernel"])
     rStride = int(param["reducing_stride"])

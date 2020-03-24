@@ -1,11 +1,11 @@
 {
 	"learning_rate": 1e-3,
-	"num_epochs": 1e1,
-	"display_epochs": 1e0,
+	"num_epochs": 5e1,
+	"display_epochs": 1e1,
 	"reducing_conv_kernel": 3,
 	"reducing_stride": 2,
 	"nonreducing_conv_kernel": 4,
 	"nonreducing_stride": 1,
 	"reducing_out": 16,
-	"nonreducing_out": 4
+	"nonreducing_out": 8
 }

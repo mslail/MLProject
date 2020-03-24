@@ -23,8 +23,8 @@ class Net(nn.Module):
         fSize= 4    # final size based on number of reducing layers and stride
 
         # fully connected layers
-        self.fc1=nn.Linear(red_out*fSize*fSize, 512)
-        self.fc2=nn.Linear(512, 1)
+        self.fc1=nn.Linear(red_out*fSize*fSize, 1024)
+        self.fc2=nn.Linear(1024, 1)
 
     # Feedforward function
     def forward(self, x):
