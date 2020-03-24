@@ -8,8 +8,8 @@ Project for Phys 490.
 python main.py sample.npy [enable_gpu]
 ```
 
-(where sample.npy is the numpy file containing the images and energy eigenvalues)
-(enable_gpu is either 1 or 0 if you want cuda enabled)
+- where sample.npy is the numpy file containing the images and energy eigenvalues
+- enable_gpu is either 1 or 0 if you want cuda enabled
 
 # Changes from Paper and HW2
 
