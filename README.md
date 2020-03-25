@@ -7,6 +7,10 @@ Project for Phys 490.
 ```sh
 python main.py sample.npy
 ```
+# with gpu
+```sh
+python main.py sample.npy -g 1
+```
 
 (where sample.npy is the numpy file containing the images and energy eigenvalues)
 
