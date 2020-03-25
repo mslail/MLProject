@@ -69,9 +69,8 @@ class Net(nn.Module):
         #print(targets)
         #print()
         obj_val = loss(self.forward(inputs[:len(inputs)//2]).view(-1), targets[:len(inputs)//2])
-        print(obj_val.size())
         obj_val += loss(self.forward(inputs[:len(inputs)//2]).view(-1), targets[:len(inputs)//2])
-        print(obj_val.size())
+        
         optimizer.zero_grad()
         obj_val.backward()
         optimizer.step()
