@@ -11,6 +11,24 @@ python main.py sample.npy [enable_gpu]
 - where sample.npy is the numpy file containing the images and energy eigenvalues
 - enable_gpu is either 1 or 0 if you want cuda enabled
 
+# Parameters (Sample, replace () with desired values) 
+```
+{
+	"learning_rate": (Learning rate used for training),
+	"num_epochs_per_batch": (Number of epochs ran per batch),
+	"display_epochs": (Display epoch, shows loss at each step),
+	"reducing_conv_kernel": (Convolution kernel),
+	"reducing_stride": (Stride),
+	"nonreducing_conv_kernel": (Non reducing convolution kernel),
+	"nonreducing_stride": (Non reducing stride),
+	"reducing_out": (Reducing out),
+	"nonreducing_out": (Non reducing out),
+	"n_batches": (Number of batches to run on the data),
+	"batch_size": (Size of the batches)
+}
+```
+- n_batches and batch_size have to be within the data length
+
 # Changes from Paper and HW2
 
 1) 128 x 128 image (versus 256 x 256 expected in paper)
