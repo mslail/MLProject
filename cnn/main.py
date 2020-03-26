@@ -41,9 +41,20 @@ def convertToCpu(tensorObj, cudaToggle):
 if __name__ == '__main__':
 
     # get image file name from cmd line and load in pickled file
-    imFile = sys.argv[1]
-    enableCuda = int(sys.argv[2])
-    imData = np.load(imFile, allow_pickle=True)
+    preload = False
+    if sys.argv[1] == '--preload':
+        preload = True
+        modelFile = sys.argv[2]
+        potentialType = sys.argv[3]
+        imFile = sys.argv[4]
+        enableCuda = int(sys.argv[5])
+        imData = np.load(imFile, allow_pickle=True)
+    else:
+        potentialType = sys.argv[1]
+        imFile = sys.argv[2]
+        enableCuda = int(sys.argv[3])
+        imData = np.load(imFile, allow_pickle=True)
+
     if vb == 1:
         print("Name of file: ", imFile,
               " Size of sample file: ", np.shape(imData))
@@ -82,6 +93,10 @@ if __name__ == '__main__':
 
     if enableCuda:
         model.to('cuda')
+
+    # Preloading
+    if preload:
+        model.load_state_dict(torch.load(modelFile))
 
     # declare optimizer and gradient and loss function
     optimizer = optim.Adadelta(model.parameters(), lr=lr_rate)
@@ -135,8 +150,17 @@ if __name__ == '__main__':
     print("Training Finished")
     # Saving model
     print("Saving Model")
-    torch.save(model.state_dict(), modelSaveDir +
-               "model=file-{}".format(imFile.replace("npy", "").replace("\\", "")[1:]))
+
+    if preload:
+        modelCurrentSample = int(modelFile.split("[")[-1][:-1])
+        modelFileName = modelSaveDir + \
+            "model=type-{}=samples-[{}]".format(potentialType,
+                                                dataLen + modelCurrentSample)
+    else:
+        modelFileName = modelSaveDir + \
+            "model=type-{}=samples-[{}]".format(potentialType, dataLen)
+
+    torch.save(model.state_dict(), modelFileName)
 
     print("Starting Testing")
 
