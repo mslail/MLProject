@@ -10,7 +10,6 @@ Rubin Hazarika (20607919)
 import sys
 import numpy as np
 import json
-import argparse
 import torch
 import torch.optim as optim
 import matplotlib.pyplot as plt
@@ -137,7 +136,7 @@ if __name__ == '__main__':
     # Saving model
     print("Saving Model")
     torch.save(model.state_dict(), modelSaveDir +
-               "model=file-{}".format(imFile.replace("\\", "")))
+               "model=file-{}".format(imFile.replace("npy", "").replace("\\", "")[1:]))
 
     print("Starting Testing")
 

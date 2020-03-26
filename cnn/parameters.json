@@ -1,7 +1,7 @@
 {
 	"learning_rate": 5e-2,
-	"num_epochs_per_batch": 10,
-	"display_epochs": 5,
+	"num_epochs_per_batch": 100,
+	"display_epochs": 20,
 	"reducing_conv_kernel": 3,
 	"reducing_stride": 2,
 	"nonreducing_conv_kernel": 4,
