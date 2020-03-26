@@ -26,10 +26,16 @@ vb = 0
 dirName = "plot/"
 
 
-def convertToTensor(tensorObj, tensorType, cudaToggle):
+def convertToTensor(obj, tensorType, cudaToggle):
     if cudaToggle:
-        return torch.tensor(tensorObj, dtype=tensorType).to('cuda')
-    return torch.tensor(tensorObj, dtype=tensorType)
+        return torch.tensor(obj, dtype=tensorType).to('cuda')
+    return torch.tensor(obj, dtype=tensorType)
+
+
+def convertToCpu(tensorObj, cudaToggle):
+    if cudaToggle:
+        return tensorObj.cpu().detach()
+    return tensorObj.detach()
 
 
 if __name__ == '__main__':
@@ -56,7 +62,9 @@ if __name__ == '__main__':
     for img in imData:
         images.append(np.reshape(img[:-1], (1, imLen, imLen)))
         energies.append(img[-1])
+
     print("Successfully loaded image data")
+
     # hyperparameters (start with r = for reducing layer, start with n = for nonreducing layer)
     lr_rate = float(param["learning_rate"])
     rKern = int(param["reducing_conv_kernel"])
@@ -70,6 +78,7 @@ if __name__ == '__main__':
     model = Net(red_kernel=rKern, nonred_kernel=nKern, red_stride=rStride,
                 nonred_stride=nStride, red_out=rOut, nonred_out=nOut)
     model = model.double()
+    dataLen = len(images)
 
     if enableCuda:
         model.to('cuda')
@@ -88,6 +97,12 @@ if __name__ == '__main__':
     num_epochs = int(epochs)
     n_batches = int(param["n_batches"])
     batch_size = int(param["batch_size"])
+
+    # Checking for n_batches and batch_size
+    if (n_batches >= dataLen) or (batch_size >= dataLen):
+        raise Exception(
+            "Error: ensure that n_batches({}) or batch_size({}) "
+            "are within the data length({})".format(n_batches, batch_size, dataLen))
 
     # Sectioning off training and testing images
     images1 = convertToTensor(images[:n_batches], torch.double, enableCuda)
@@ -108,10 +123,7 @@ if __name__ == '__main__':
             obj_vals.append(train_val)
 
             if not ((epoch + 1) % disp_epochs):
-                if enableCuda:
-                    output = output.cpu().detach().numpy()
-                else:
-                    output = output.detach().numpy()
+                output = convertToCpu(output, enableCuda).numpy()
 
                 plt.plot(output)
                 plt.savefig(dirName + "E" + str(epoch) + ".png")
@@ -119,16 +131,21 @@ if __name__ == '__main__':
                 print("Batch #{}".format(int(batch/batch_size)) +
                       "\tEpoch [{}/{}]".format(epoch, num_epochs) +
                       "\tTraining Loss: {:.5f}".format(train_val))
+
     print("Training Finished")
     print("Starting Testing")
-    plt.close()
 
     out_nrgs, test_val = model.test(test, testE, loss)
     print("Testing Finished")
-    plt.plot(np.linspace(0.0, max(testE.cpu())),
-             np.linspace(0.0, max(testE.cpu())))
-    plt.scatter(np.sort(testE.cpu()), np.sort(
-        out_nrgs.detach().cpu().numpy()), s=0.5)
+
+    testE = convertToCpu(testE, enableCuda)
+    test = convertToCpu(test, enableCuda)
+    out_nrgs = convertToCpu(out_nrgs, enableCuda)
+
+    plt.plot(np.linspace(0.0, max(testE)),
+             np.linspace(0.0, max(testE)))
+    plt.scatter(np.sort(testE), np.sort(
+        out_nrgs.numpy()), s=0.5)
     plt.savefig(dirName + "InitialE.png")
     plt.close()
 
