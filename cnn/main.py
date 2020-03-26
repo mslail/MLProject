@@ -130,7 +130,7 @@ if __name__ == '__main__':
                 plt.close()
                 print("Batch #{}".format(int(batch/batch_size)) +
                       "\tEpoch [{}/{}]".format(epoch, num_epochs) +
-                      "\tTraining Loss: {:.5f}".format(train_val))
+                      "\tTraining Loss: {:.6f}".format(train_val))
 
     print("Training Finished")
     # Saving model
