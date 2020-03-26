@@ -63,17 +63,12 @@ class Net(nn.Module):
         targets = energy
 
         # calculating output from nn and reshaping
-        calculatedVal = self.forward(inputs)
-        size = calculatedVal.size()[0]
-        calculatedVal = calculatedVal.view(size)
-
-        # calculating loss
+        calculatedVal = self.forward(inputs).view(-1)
         obj_val = loss(calculatedVal, targets)
 
         optimizer.zero_grad()
         obj_val.backward()
         optimizer.step()
-
         return calculatedVal, obj_val.item()
 
     # Test function. Avoids calculation of gradients.
@@ -84,10 +79,7 @@ class Net(nn.Module):
             targets = energy
 
             # calculating output from nn and reshaping
-            calculatedVal = self.forward(inputs)
-            size = calculatedVal.size()[0]
-            calculatedVal = calculatedVal.view(size)
-
+            calculatedVal = self.forward(inputs).view(-1)
             cross_val = loss(calculatedVal, targets)
 
-        return cross_val.item()
+        return calculatedVal, cross_val.item()

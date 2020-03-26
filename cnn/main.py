@@ -1,6 +1,6 @@
 """
 
-PHYS 490 
+PHYS 490
 Assignment 2
 Rubin Hazarika (20607919)
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     for img in imData:
         images.append(np.reshape(img[:-1], (1, imLen, imLen)))
         energies.append(img[-1])
-
+    print("Successfully loaded image data")
     # hyperparameters (start with r = for reducing layer, start with n = for nonreducing layer)
     lr_rate = float(param["learning_rate"])
     rKern = int(param["reducing_conv_kernel"])
@@ -83,46 +83,52 @@ if __name__ == '__main__':
     cross_vals = []
 
     # epoch hyperparameters
-    epochs = param["num_epochs"]
+    epochs = param["num_epochs_per_batch"]
     disp_epochs = param["display_epochs"]
     num_epochs = int(epochs)
+    n_batches = int(param["n_batches"])
+    batch_size = int(param["batch_size"])
 
     # Sectioning off training and testing images
-    cutoff = 140
+    images1 = convertToTensor(images[:n_batches], torch.double, enableCuda)
+    energies1 = convertToTensor(energies[:n_batches], torch.double, enableCuda)
 
-    images1 = convertToTensor(images[:cutoff], torch.double, enableCuda)
-    test = convertToTensor(images[cutoff:], torch.double, enableCuda)
-
-    energies1 = convertToTensor(energies[:cutoff], torch.double, enableCuda)
-    testE = convertToTensor(energies[cutoff:],  torch.double, enableCuda)
+    test = convertToTensor(images[n_batches:], torch.double, enableCuda)
+    testE = convertToTensor(energies[n_batches:],  torch.double, enableCuda)
 
     # Training loop
-    for epoch in range(1, num_epochs + 1):
-        output, train_val = model.backprop(
-            images1, energies1, loss, optimizer)        # training loss value
-        # appending loss values for training dataset
-        obj_vals.append(train_val)
+    print("Attempting to Start training")
+    for batch in range(0, n_batches - batch_size, batch_size):
+        batch_images = images1[batch: batch+batch_size]
+        batch_energies = energies1[batch: batch+batch_size]
+        for epoch in range(1, num_epochs + 1):
+            output, train_val = model.backprop(
+                batch_images, batch_energies, loss, optimizer)        # training loss value
+            # appending loss values for training dataset
+            obj_vals.append(train_val)
 
-        test_val = model.test(test, testE, loss)
-        cross_vals.append(test_val)
+            if not ((epoch + 1) % disp_epochs):
+                if enableCuda:
+                    output = output.cpu().detach().numpy()
+                else:
+                    output = output.detach().numpy()
 
-        if not ((epoch + 1) % disp_epochs):
-            if enableCuda:
-                output = output.cpu().detach().numpy()
-            else:
-                output = output.detach().numpy()
-
-            plt.plot(output)
-            plt.savefig(dirName + "E" + str(epoch) + ".png")
-            plt.close()
-
-            print('Epoch [{}/{}]'.format(epoch, num_epochs) +
-                  '\tTraining Loss: {:.4f}'.format(train_val) +
-                  '\t Test Loss: {:.4f}'.format(test_val))
-
+                plt.plot(output)
+                plt.savefig(dirName + "E" + str(epoch) + ".png")
+                plt.close()
+                print("Batch #{}".format(int(batch/batch_size)) +
+                      "\tEpoch [{}/{}]".format(epoch, num_epochs) +
+                      "\tTraining Loss: {:.5f}".format(train_val))
+    print("Training Finished")
+    print("Starting Testing")
     plt.close()
 
-    plt.plot(energies)
+    out_nrgs, test_val = model.test(test, testE, loss)
+    print("Testing Finished")
+    plt.plot(np.linspace(0.0, max(testE.cpu())),
+             np.linspace(0.0, max(testE.cpu())))
+    plt.scatter(np.sort(testE.cpu()), np.sort(
+        out_nrgs.detach().cpu().numpy()), s=0.5)
     plt.savefig(dirName + "InitialE.png")
     plt.close()
 
