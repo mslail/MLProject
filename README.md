@@ -14,7 +14,7 @@ python main.py sample.npy [enable_gpu]
 # Loading and Running CNN
 
 ```sh
-python loadtrain.py sample.npy [path_to_model] [enable_gpu]
+python loadtest.py sample.npy [path_to_model] [enable_gpu]
 ```
 
 - where sample.npy is the numpy file containing the images and energy eigenvalues
