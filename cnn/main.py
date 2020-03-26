@@ -24,6 +24,7 @@ sns.set_style("darkgrid")
 vb = 0
 
 dirName = "plot/"
+modelSaveDir = "models/"
 
 
 def convertToTensor(obj, tensorType, cudaToggle):
@@ -133,6 +134,11 @@ if __name__ == '__main__':
                       "\tTraining Loss: {:.5f}".format(train_val))
 
     print("Training Finished")
+    # Saving model
+    print("Saving Model")
+    torch.save(model.state_dict(), modelSaveDir +
+               "model=file-{}".format(imFile.replace("\\", "")))
+
     print("Starting Testing")
 
     out_nrgs, test_val = model.test(test, testE, loss)
