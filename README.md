@@ -11,6 +11,16 @@ python main.py sample.npy [enable_gpu]
 - where sample.npy is the numpy file containing the images and energy eigenvalues
 - enable_gpu is either 1 or 0 if you want cuda enabled
 
+# Loading and Running CNN
+
+```sh
+python loadtest.py sample.npy [path_to_model] [enable_gpu]
+```
+
+- where sample.npy is the numpy file containing the images and energy eigenvalues
+- enable_gpu is either 1 or 0 if you want cuda enabled
+- path_to_model is the path to model saved
+
 # Parameters (Sample, replace () with desired values) 
 ```
 {
