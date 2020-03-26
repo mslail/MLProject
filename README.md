@@ -12,6 +12,7 @@ python main.py sample.npy [enable_gpu]
 - enable_gpu is either 1 or 0 if you want cuda enabled
 
 # Parameters (Sample, replace () with desired values) 
+```
 {
 	"learning_rate": (Learning rate used for training),
 	"num_epochs_per_batch": (Number of epochs ran per batch),
@@ -25,6 +26,7 @@ python main.py sample.npy [enable_gpu]
 	"n_batches": (Number of batches to run on the data),
 	"batch_size": (Size of the batches)
 }
+```
 - n_batches and batch_size have to be within the data length
 
 # Changes from Paper and HW2
