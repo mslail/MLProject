@@ -5,10 +5,11 @@ Project for Phys 490.
 # Running CNN
 
 ```sh
-python main.py sample.npy [enable_gpu]
+python main.py [sample_directorry] [enable_gpu]
 ```
 
-- where sample.npy is the numpy file containing the images and energy eigenvalues
+- where sample_directory is the folder containing the .npy files with the images and energy eigenvalues
+*Must be more that 1 .npy file* *# of samples per file does not matter*
 - enable_gpu is either 1 or 0 if you want cuda enabled
 
 # Loading and Running CNN
@@ -32,12 +33,9 @@ python loadtest.py sample.npy [path_to_model] [enable_gpu]
 	"nonreducing_conv_kernel": (Non reducing convolution kernel),
 	"nonreducing_stride": (Non reducing stride),
 	"reducing_out": (Reducing out),
-	"nonreducing_out": (Non reducing out),
-	"n_batches": (Number of batches to run on the data),
-	"batch_size": (Size of the batches)
+	"nonreducing_out": (Non reducing out)
 }
 ```
-- n_batches and batch_size have to be within the data length
 
 # Changes from Paper and HW2
 
