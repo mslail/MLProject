@@ -132,11 +132,13 @@ if __name__ == '__main__':
                       "\tTraining Loss: {:.6f}".format(train_val))
 
     print("Training Finished")
+    
     # Saving model
     print("Saving Model")
     torch.save(model.state_dict(), modelSaveDir +
                "model=file-{}".format(imFile.replace("npy", "").replace("\\", "")[1:]))
 
+    # Not preliminary testing
     print("Starting Testing")
 
     out_nrgs, test_val = model.test(test, testE, loss)
