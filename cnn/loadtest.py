@@ -103,6 +103,14 @@ if __name__ == '__main__':
     energies = 1000*np.array(energies)
     out_nrgs = 1000*np.array(out_nrgs)
 
+    # calculating median absolute error for energies in range (100-400 mHa)
+    abs_err = abs(np.sort(energies) - np.sort(out_nrgs))
+    median_err = np.median(abs_err)
+
+    f= open(dirName + "median_abs_error.txt","w+")
+    f.write("Median Absolute Error: " + str(median_err) + " mHa \n")
+    f.close()
+    
     # plotting true energies vs. predicted energies 
     plt.plot(np.linspace(0.0, max(energies)), np.linspace(0.0, max(energies)))
     plt.scatter(np.sort(energies), np.sort(out_nrgs.numpy()), s=0.5)
