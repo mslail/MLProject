@@ -59,6 +59,14 @@ if __name__ == '__main__':
     vb = int(args.v[0])
     jsonPath = str(args.j[0])
 
+    # creating directory for results if it does not exist
+    if not os.path.exists(dirName):
+        os.mkdir(dirName)
+
+    # creating directory for models if it does not exist
+    if not os.path.exists(modelSaveDir):
+        os.mkdir(modelSaveDir)
+
     # loading imData in with pickling allowed 
     imData = np.load(imFile, allow_pickle=True)
     if vb == 1:
