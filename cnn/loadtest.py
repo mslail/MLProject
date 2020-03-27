@@ -112,8 +112,8 @@ if __name__ == '__main__':
     f.close()
     
     # plotting true energies vs. predicted energies 
-    plt.plot(np.linspace(0.0, max(energies)), np.linspace(0.0, max(energies)))
-    plt.scatter(np.sort(energies), np.sort(out_nrgs.numpy()), s=0.5)
+    plt.plot(np.linspace(0.0, max(energies)), np.linspace(0.0, max(energies)), linewidth=1.5, color='k')
+    plt.plot(np.sort(energies), np.sort(out_nrgs.numpy()), linewidth=0, markersize=1.5, color='red')
     plt.xlabel("True Energy (mHa)")
     plt.ylabel("Predicted Energy (mHa)")
     plt.xlim((100,400))
