@@ -32,6 +32,7 @@ if __name__ == '__main__':
     modelFile = str(args.m[0])
     enableCuda = int(args.g[0])
     vb = int(args.v[0])
+    jsonPath = str(args.j[0])
 
     # loading in image data
     imData = np.load(imFile, allow_pickle=True)
@@ -46,7 +47,7 @@ if __name__ == '__main__':
               " Size of sample file: ", np.shape(imData))
 
     # hyperparameters (json file) import
-    jsonPath = "parameters.json"
+
     with open(jsonPath) as json_file:
         param = json.load(json_file)
 
@@ -99,8 +100,8 @@ if __name__ == '__main__':
     out_nrgs = convertToCpu(out_nrgs, enableCuda)           # predicted values for energies
 
     # scaling energies to mHa
-    energies *= 1000
-    out_nrgs *= 1000
+    energies = 1000*np.array(energies)
+    out_nrgs = 1000*np.array(out_nrgs)
 
     # plotting true energies vs. predicted energies 
     plt.plot(np.linspace(0.0, max(energies)), np.linspace(0.0, max(energies)))
