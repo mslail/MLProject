@@ -9,7 +9,7 @@ Rubin Hazarika (20607919)
 
 import sys
 import numpy as np
-import json
+import json, argparse
 import torch
 import torch.optim as optim
 import matplotlib.pyplot as plt
@@ -18,12 +18,6 @@ import csv
 from cnn import Net
 
 sns.set_style("darkgrid")
-
-# verbosity (0,1,2) - for different levels of debugging
-vb = 0
-
-dirName = "plot/"
-modelSaveDir = "models/"
 
 
 def convertToTensor(obj, tensorType, cudaToggle):
@@ -40,16 +34,38 @@ def convertToCpu(tensorObj, cudaToggle):
 
 if __name__ == '__main__':
 
-    # get image file name from cmd line and load in pickled file
-    imFile = sys.argv[1]
-    enableCuda = int(sys.argv[2])
+    # Command line arguments
+    parser = argparse.ArgumentParser(description='Getting data from user')
+    parser.add_argument('-o', metavar='dirName', type=str, nargs=1, default= ["plot/"],
+                        help='directory to store plots and other results of testing model')
+    parser.add_argument('-i', metavar='imFile', type=str, nargs=1, default= ["sample.npy"],
+                        help='image file containing set of images and energy eigenvalues') 
+    parser.add_argument('-d', metavar='modelSaveDir', type=str, nargs=1, default= ["models/"],
+                        help='directory to store models') 
+    parser.add_argument('-g', metavar='enableCuda', type=str, nargs=1, default=[0],
+                        help='enter 0 to run without GPU; 1 to run with GPU enabled')
+    parser.add_argument('-j', metavar='jsonFile', type=str, nargs=1, default=["parameters.json"],
+                        help='name of json file containing all hyperparameters')
+    parser.add_argument('-v', metavar='verbosity', type=str, nargs=1, default=[0],
+                        help='verbosity - 0 or 1 ')
+                                       
+    args = parser.parse_args()
+
+    # Getting inputs from cmd line
+    dirName = str(args.o[0])
+    imFile = str(args.i[0])
+    modelSaveDir = str(args.d[0])
+    enableCuda = int(args.g[0])
+    vb = int(args.v[0])
+    jsonPath = str(args.j[0])
+
+    # loading imData in with pickling allowed 
     imData = np.load(imFile, allow_pickle=True)
     if vb == 1:
         print("Name of file: ", imFile,
               " Size of sample file: ", np.shape(imData))
 
     # hyperparameters (json file) import
-    jsonPath = "parameters.json"
     with open(jsonPath) as json_file:
         param = json.load(json_file)
 
