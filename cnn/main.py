@@ -1,10 +1,3 @@
-"""
-
-PHYS 490
-Assignment 2
-Rubin Hazarika (20607919)
-
-"""
 # use > conda activate base (in terminal)
 
 import sys
