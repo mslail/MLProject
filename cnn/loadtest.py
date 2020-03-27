@@ -1,5 +1,7 @@
+import argparse
 import sys
 import json
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import torch
@@ -14,10 +16,37 @@ dirName = "plot/"
 if __name__ == '__main__':
 
     # get image file name from cmd line and load in pickled file
-    imFile = sys.argv[1]
-    modelFile = sys.argv[2]
-    enableCuda = int(sys.argv[3])
+    parser = argparse.ArgumentParser(description='Getting data from user')
+    parser.add_argument('-o', metavar='dirName', type=str, nargs=1, default=["plot/"],
+                        help='directory to store plots and other results of testing model')
+    parser.add_argument('-i', metavar='imFile', type=str, nargs=1, default=["sample.npy"],
+                        help='image file containing set of images and energy eigenvalues')
+    parser.add_argument('-m', metavar='modelFile', type=str, nargs=1,
+                        help='file holding the current model')
+    parser.add_argument('-g', metavar='enableCuda', type=str, nargs=1, default=[0],
+                        help='enter 0 to run without GPU; 1 to run with GPU enabled')
+    parser.add_argument('-j', metavar='jsonFile', type=str, nargs=1, default=["parameters.json"],
+                        help='name of json file containing all hyperparameters')
+    parser.add_argument('-v', metavar='verbosity', type=str, nargs=1, default=[0],
+                        help='verbosity - 0 or 1 ')
+
+    args = parser.parse_args()
+
+    # Getting inputs from cmd line
+    dirName = str(args.o[0])
+    imFile = str(args.i[0])
+    modelFile = str(args.m[0])
+    enableCuda = int(args.g[0])
+    vb = int(args.v[0])
+    jsonPath = str(args.j[0])
+
+    # loading in image data
     imData = np.load(imFile, allow_pickle=True)
+
+    # creating directory for results if it does not exist
+    if not os.path.exists(dirName):
+        os.mkdir(dirName)
+
     if vb == 1:
         print("Name of file: ", imFile,
               " Size of sample file: ", np.shape(imData))
@@ -63,6 +92,24 @@ if __name__ == '__main__':
     optimizer = optim.Adadelta(model.parameters(), lr=lr_rate)
     loss = torch.nn.MSELoss(reduction='mean')
 
+    # print("Loading model")
+    # model.load_state_dict(torch.load(modelFile))
+
+    # print("Starting Testing")
+    # out_nrgs, test_val = model.test(images, energies, loss)
+    # print("Testing Finished")
+
+    # energies = convertToCpu(energies, enableCuda)
+    # images = convertToCpu(images, enableCuda)
+    # out_nrgs = convertToCpu(out_nrgs, enableCuda)
+
+    # plt.plot(np.linspace(0.0, max(energies)),
+    #          np.linspace(0.0, max(energies)))
+    # plt.scatter(np.sort(energies), np.sort(
+    #     out_nrgs.numpy()), s=0.5)
+    # plt.savefig(dirName + modelFile.split("\\")[-1] +
+    #             "-data=" + imFile.replace("npy", "").replace("\\", "")[1:] + "png")
+    # plt.close()
     print("Loading model")
     model.load_state_dict(torch.load(modelFile))
 
@@ -70,14 +117,33 @@ if __name__ == '__main__':
     out_nrgs, test_val = model.test(images, energies, loss)
     print("Testing Finished")
 
+    # formatting all output
+    # true values for energies
     energies = convertToCpu(energies, enableCuda)
-    images = convertToCpu(images, enableCuda)
+    images = convertToCpu(images, enableCuda)               # images
+    # predicted values for energies
     out_nrgs = convertToCpu(out_nrgs, enableCuda)
 
-    plt.plot(np.linspace(0.0, max(energies)),
-             np.linspace(0.0, max(energies)))
-    plt.scatter(np.sort(energies), np.sort(
-        out_nrgs.numpy()), s=0.5)
+    # scaling energies to mHa
+    energies = 1000*np.array(energies)
+    out_nrgs = 1000*np.array(out_nrgs)
+
+    # calculating median absolute error for energies in range (100-400 mHa)
+    abs_err = abs(np.sort(energies) - np.sort(out_nrgs))
+    median_err = np.median(abs_err)
+
+    f = open(dirName + "median_abs_error.txt", "w+")
+    f.write("Median Absolute Error: " + str(median_err) + " mHa \n")
+    f.close()
+
+    # plotting true energies vs. predicted energies
+    plt.plot(np.linspace(0.0, max(energies)), np.linspace(0.0, max(energies)))
+    plt.scatter(np.sort(energies), np.sort(out_nrgs), s=0.5)
+    plt.xlabel("True Energy (mHa)")
+    plt.ylabel("Predicted Energy (mHa)")
+    plt.xlim((100, 400))
+    plt.ylim((100, 400))
+
     plt.savefig(dirName + modelFile.split("\\")[-1] +
                 "-data=" + imFile.replace("npy", "").replace("\\", "")[1:] + "png")
     plt.close()

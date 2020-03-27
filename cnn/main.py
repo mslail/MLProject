@@ -7,14 +7,14 @@ Rubin Hazarika (20607919)
 """
 # use > conda activate base (in terminal)
 
-import sys
+import argparse
 import numpy as np
 import json
 import torch
 import torch.optim as optim
 import matplotlib.pyplot as plt
 import seaborn as sns
-import csv
+import sys
 from cnn import Net
 
 sns.set_style("darkgrid")
@@ -41,20 +41,35 @@ def convertToCpu(tensorObj, cudaToggle):
 if __name__ == '__main__':
 
     # get image file name from cmd line and load in pickled file
-    preload = False
-    if sys.argv[1] == '--preload':
-        preload = True
-        modelFile = sys.argv[2]
-        potentialType = sys.argv[3]
-        imFile = sys.argv[4]
-        enableCuda = int(sys.argv[5])
-        imData = np.load(imFile, allow_pickle=True)
-    else:
-        potentialType = sys.argv[1]
-        imFile = sys.argv[2]
-        enableCuda = int(sys.argv[3])
-        imData = np.load(imFile, allow_pickle=True)
 
+    parser = argparse.ArgumentParser(description='Getting data from user')
+
+    parser.add_argument('-preload', metavar='modelFile', type=str, nargs=1, default=[""],
+                        help='The file for the model')
+
+    parser.add_argument('-o', metavar='dirName', type=str, nargs=1, default=["plot/"],
+                        help='directory to store plots and other results of testing model')
+    parser.add_argument('-i', metavar='imFile', type=str, nargs=1,
+                        help='image file containing set of images and energy eigenvalues')
+    parser.add_argument('-d', metavar='modelSaveDir', type=str, nargs=1, default=["models/"],
+                        help='directory to store models')
+    parser.add_argument('-g', metavar='enableCuda', type=str, nargs=1, default=[0],
+                        help='enter 0 to run without GPU; 1 to run with GPU enabled')
+    parser.add_argument('-j', metavar='jsonFile', type=str, nargs=1, default=["parameters.json"],
+                        help='name of json file containing all hyperparameters')
+    parser.add_argument('-v', metavar='verbosity', type=str, nargs=1, default=[0],
+                        help='verbosity - 0 or 1 ')
+
+    args = parser.parse_args()
+    preload = True if args.preload[0] else False
+    dirName = str(args.o[0])
+    imFile = str(args.i[0])
+    modelSaveDir = str(args.d[0])
+    enableCuda = int(args.g[0])
+    vb = int(args.v[0])
+    jsonPath = str(args.j[0])
+
+    imData = np.load(imFile, allow_pickle=True)
     if vb == 1:
         print("Name of file: ", imFile,
               " Size of sample file: ", np.shape(imData))
@@ -96,6 +111,7 @@ if __name__ == '__main__':
 
     # Preloading
     if preload:
+        modelFile = str(args.preload[0])
         model.load_state_dict(torch.load(modelFile))
 
     # declare optimizer and gradient and loss function
@@ -154,11 +170,10 @@ if __name__ == '__main__':
     if preload:
         modelCurrentSample = int(modelFile.split("[")[-1][:-1])
         modelFileName = modelSaveDir + \
-            "model=type-{}=samples-[{}]".format(potentialType,
-                                                dataLen + modelCurrentSample)
+            "model=samples-[{}]".format(dataLen + modelCurrentSample)
     else:
         modelFileName = modelSaveDir + \
-            "model=type-{}=samples-[{}]".format(potentialType, dataLen)
+            "model=samples-[{}]".format(dataLen)
 
     torch.save(model.state_dict(), modelFileName)
 
