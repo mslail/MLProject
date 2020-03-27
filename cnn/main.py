@@ -136,17 +136,16 @@ if __name__ == '__main__':
             "are within the data length({})".format(n_batches, batch_size, dataLen))
 
     # Sectioning off training and testing images
-    images1 = convertToTensor(images[:n_batches], torch.double, enableCuda)
-    energies1 = convertToTensor(energies[:n_batches], torch.double, enableCuda)
-
     test = convertToTensor(images[n_batches:], torch.double, enableCuda)
     testE = convertToTensor(energies[n_batches:],  torch.double, enableCuda)
 
     # Training loop
     print("Attempting to Start training")
     for batch in range(0, n_batches - batch_size, batch_size):
-        batch_images = images1[batch: batch+batch_size]
-        batch_energies = energies1[batch: batch+batch_size]
+        batch_images = convertToTensor(
+            images[batch: batch+batch_size], torch.double, enableCuda)
+        batch_energies = convertToTensor(
+            energies[batch: batch+batch_size], torch.double, enableCuda)
         for epoch in range(1, num_epochs + 1):
             output, train_val = model.backprop(
                 batch_images, batch_energies, loss, optimizer)        # training loss value
