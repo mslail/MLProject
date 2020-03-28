@@ -1,6 +1,15 @@
 # MLProject
 Project for Phys 490.
 
+# Generating samples
+```sh
+python Gen_main.py [n_samples] [Potential type]
+```
+-where n_samples is the total number of samples generated and Potential_type is the 3 letter code for
+the desired potential. Avalible potentials are the simple harmonic oscilator (HMO) and infinite potential well (IPW)
+
+-optional parameters include number of samples per file (-n_per: default 1000), switch to use known analytic solution
+for energy values (-use_nrg: default true), and the image resolution (-res: default 128)
 
 # Running CNN
 
