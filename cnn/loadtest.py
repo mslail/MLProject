@@ -92,24 +92,7 @@ if __name__ == '__main__':
     optimizer = optim.Adadelta(model.parameters(), lr=lr_rate)
     loss = torch.nn.MSELoss(reduction='mean')
 
-    # print("Loading model")
-    # model.load_state_dict(torch.load(modelFile))
-
-    # print("Starting Testing")
-    # out_nrgs, test_val = model.test(images, energies, loss)
-    # print("Testing Finished")
-
-    # energies = convertToCpu(energies, enableCuda)
-    # images = convertToCpu(images, enableCuda)
-    # out_nrgs = convertToCpu(out_nrgs, enableCuda)
-
-    # plt.plot(np.linspace(0.0, max(energies)),
-    #          np.linspace(0.0, max(energies)))
-    # plt.scatter(np.sort(energies), np.sort(
-    #     out_nrgs.numpy()), s=0.5)
-    # plt.savefig(dirName + modelFile.split("\\")[-1] +
-    #             "-data=" + imFile.replace("npy", "").replace("\\", "")[1:] + "png")
-    # plt.close()
+    print("Loading model")
     print("Loading model")
     model.load_state_dict(torch.load(modelFile))
 
@@ -138,7 +121,7 @@ if __name__ == '__main__':
 
     # plotting true energies vs. predicted energies
     plt.plot(np.linspace(0.0, max(energies)), np.linspace(0.0, max(energies)))
-    plt.scatter(np.sort(energies), np.sort(out_nrgs), s=0.5)
+    plt.scatter(np.sort(energies), np.sort(out_nrgs), s=0.5, color='red')
     plt.xlabel("True Energy (mHa)")
     plt.ylabel("Predicted Energy (mHa)")
     plt.xlim((100, 400))

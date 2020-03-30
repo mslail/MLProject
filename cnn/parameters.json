@@ -1,13 +1,13 @@
 {
 	"learning_rate": 5e-2,
-	"num_epochs_per_batch": 50,
-	"display_epochs": 10,
+	"num_epochs_per_batch": 100,
+	"display_epochs": 50,
 	"reducing_conv_kernel": 3,
 	"reducing_stride": 2,
 	"nonreducing_conv_kernel": 4,
 	"nonreducing_stride": 1,
 	"reducing_out": 16,
 	"nonreducing_out": 8,
-	"n_batches": 48000,
+	"n_batches": 38000,
 	"batch_size": 500
 }

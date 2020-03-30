@@ -13,6 +13,7 @@ import json
 import torch
 import torch.optim as optim
 import matplotlib.pyplot as plt
+import random
 import seaborn as sns
 import sys
 from cnn import Net
@@ -70,6 +71,12 @@ if __name__ == '__main__':
     jsonPath = str(args.j[0])
 
     imData = np.load(imFile, allow_pickle=True)
+    # print(imFile)
+    # imData2 = np.load(
+    #     '.\\train_data\\samples_IPW_[20000 of 20000].npy', allow_pickle=True)
+    # imData = list(imData) + list(imData2)
+    # np.random.shuffle(imData)
+    # print(len(imData))
     if vb == 1:
         print("Name of file: ", imFile,
               " Size of sample file: ", np.shape(imData))
