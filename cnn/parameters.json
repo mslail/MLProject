@@ -7,7 +7,5 @@
 	"nonreducing_conv_kernel": 4,
 	"nonreducing_stride": 1,
 	"reducing_out": 16,
-	"nonreducing_out": 8,
-	"n_batches": 140,
-	"batch_size": 10
+	"nonreducing_out": 8
 }

@@ -1,8 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as func
-import numpy as np
-
 
 class Net(nn.Module):
 
@@ -11,9 +9,9 @@ class Net(nn.Module):
     # [...]_stride = stride for the convolution layers
     # [...]_out = # of output channels for reducing vs. non-reducing layers
 
-    def __init__(self, red_kernel, nonred_kernel, red_stride, nonred_stride, red_out, nonred_out):
+    def __init__(self, red_kernel, nonred_kernel, red_stride, nonred_stride, red_out, nonred_out, d):
         super(Net, self).__init__()
-
+        self.dev = d
         # convolution layers: '[...]_red' is a reducing layer; '[...]_non' is a non-reducing layer
         self.conv1_red = nn.Conv2d(
             1, red_out, kernel_size=red_kernel, stride=red_stride)
@@ -33,21 +31,21 @@ class Net(nn.Module):
     # Feedforward function
     def forward(self, x):
         # 4 reducing convolution layers with 3 non-reducing layers
-        r1 = func.relu(self.conv1_red(x))
-        n1 = func.relu(self.conv_non(r1))
-        r2 = func.relu(self.conv2_red(n1))
-        n2 = func.relu(self.conv_non(r2))
-        r3 = func.relu(self.conv2_red(n2))
-        n3 = func.relu(self.conv_non(r3))
-        r4 = func.relu(self.conv2_red(n3))
+        h = func.relu(self.conv1_red(x))
+        h = func.relu(self.conv_non(h))
+        h = func.relu(self.conv2_red(h))
+        h = func.relu(self.conv_non(h))
+        h = func.relu(self.conv2_red(h))
+        h = func.relu(self.conv_non(h))
+        h = func.relu(self.conv2_red(h))
 
         # fully connected layers
         # flattening before applying linear functions
-        y = r4.view(-1, r4.size(1)*r4.size(2)*r4.size(3))
-        y = func.relu(self.fc1(y))
-        y = func.relu(self.fc2(y))
+        h = h.view(-1, h.size(1)*h.size(2)*h.size(3))
+        h = func.relu(self.fc1(h))
+        h = func.relu(self.fc2(h))
 
-        return y
+        return h
 
     # Reset function for the training weights
     # Use if the same network is trained multiple times.
@@ -59,24 +57,23 @@ class Net(nn.Module):
     def backprop(self, image, energy, loss, optimizer):
         self.train()
         # preparing input and target tensors with proper dtype
-        inputs = image
-        targets = energy
+        inputs = torch.from_numpy(image).to(self.dev)
+        targets = torch.from_numpy(energy).to(self.dev)
 
         # calculating output from nn and reshaping
-        calculatedVal = self.forward(inputs).view(-1)
-        obj_val = loss(calculatedVal, targets)
+        obj_val = loss(self.forward(inputs).view(-1), targets)
 
         optimizer.zero_grad()
         obj_val.backward()
         optimizer.step()
-        return calculatedVal, obj_val.item()
+        return obj_val.item()
 
     # Test function. Avoids calculation of gradients.
     def test(self, image, energy, loss):
         self.eval()
         with torch.no_grad():
-            inputs = image
-            targets = energy
+            inputs = torch.from_numpy(image).to(self.dev)
+            targets = torch.from_numpy(energy).to(self.dev)
 
             # calculating output from nn and reshaping
             calculatedVal = self.forward(inputs).view(-1)
