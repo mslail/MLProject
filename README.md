@@ -8,7 +8,7 @@ Project for Phys 490.
  2. Training model on sample images
  3. Testing model on new images
 
-### 1. Generating 2D potential images
+## 1. Generating 2D potential images
 
 This section of code, found in (data_generation/) can be run using:
 
@@ -25,29 +25,31 @@ for energy values (-use_nrg: default true), and the image resolution (-res: defa
 - the output of the program will be .npy image files containing 128 x 128 images
 - there are pre-made image sets in the folder (cnn/test_data) containing images for the simple harmonic oscillator (SHO) and inifinite well (IPW)
 
-### 2. Training model on sample images
+## 2. Training model on sample images
 
 This section of code, found in (cnn/), can be run using:
 
 ```sh
 python main.py -o [dirName] -i [imDir] -d [modelSaveDir] -g [enableCuda] -j [jsonFile] -v [verbosity]
 ```
-- all the user-modifiable parameters have default settings allowing for this code to run with user-input
+- all the user-modifiable parameters have default settings allowing for this code to run without user-input
 - imDir is the folder containing the .npy files with the images and energy eigenvalues (*Must be more that 1 .npy file* *# of samples per file does not matter*)
 
 **Output:** 
 - this script trains a model using the neural network defined in *cnn.py* and stores the model in the modelSaveDir directory. 
 - there are already pre-made models (for the simple harmonic oscillator) for user access in the folder (cnn/models/)
 
-# Loading and Running CNN
+## 3. Testing model on new images 
 
 ```sh
-python loadtest.py sample.npy [path_to_model] [enable_gpu]
+python loadtest.py -i imFile -o [dirName] -m [modelFile] -g [enableCuda] -j [jsonFile] -v [verbosity]
 ```
 
-- where sample.npy is the numpy file containing the images and energy eigenvalues
-- enable_gpu is either 1 or 0 if you want cuda enabled
-- path_to_model is the path to model saved
+- where imFile (the .npy image set for testing) is an essential input (all others have defaults)
+
+**Output:**
+- this script will run the model on the specified image dataset and produce a histogram of true vs. predicted energies
+- it will also calculate the median absolute error as a means of gauging the accuracy of the model on the given dataset
 
 # Parameters (Sample, replace () with desired values) 
 ```
