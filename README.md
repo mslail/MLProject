@@ -1,7 +1,17 @@
 # MLProject
 Project for Phys 490.
 
-# Generating samples
+# Running the Code
+ There are 3 modular components to performing the analysis done in the paper:
+ 
+ 1. Generating 2D potential images
+ 2. Training model on sample images
+ 3. Testing model on new images
+
+### 1. Generating 2D potential images
+
+This section of code, found in (data_generation/) can be run using:
+
 ```sh
 python Gen_main.py [n_samples] [Potential type]
 ```
@@ -11,15 +21,23 @@ the desired potential. Avalible potentials are the simple harmonic oscilator (HM
 -optional parameters include number of samples per file (-n_per: default 1000), switch to use known analytic solution
 for energy values (-use_nrg: default true), and the image resolution (-res: default 128)
 
-# Running CNN
+**Output:** 
+- the output of the program will be .npy image files containing 128 x 128 images
+- there are pre-made image sets in the folder (cnn/test_data) containing images for the simple harmonic oscillator (SHO) and inifinite well (IPW)
+
+### 2. Training model on sample images
+
+This section of code, found in (cnn/), can be run using:
 
 ```sh
-python main.py [sample_directorry] [enable_gpu]
+python main.py -o [dirName] -i [imDir] -d [modelSaveDir] -g [enableCuda] -j [jsonFile] -v [verbosity]
 ```
+- all the user-modifiable parameters have default settings allowing for this code to run with user-input
+- imDir is the folder containing the .npy files with the images and energy eigenvalues (*Must be more that 1 .npy file* *# of samples per file does not matter*)
 
-- where sample_directory is the folder containing the .npy files with the images and energy eigenvalues
-*Must be more that 1 .npy file* *# of samples per file does not matter*
-- enable_gpu is either 1 or 0 if you want cuda enabled
+**Output:** 
+- this script trains a model using the neural network defined in *cnn.py* and stores the model in the modelSaveDir directory. 
+- there are already pre-made models (for the simple harmonic oscillator) for user access in the folder (cnn/models/)
 
 # Loading and Running CNN
 
